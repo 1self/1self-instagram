@@ -68,4 +68,4 @@ def register_stream(oneself_username, registration_token, instagramUserId):
 
 
 def getCallbackUrl(instagramUserId):
-    return HOST + SYNC_ENDPOINT + "?username=" + instagramUserId + "&latestSyncField={{latestSyncField}}&streamid={{streamid}}"
+    return HOST + OFFLINE_SYNC_ENDPOINT + "?username=" + instagramUserId + "&latestSyncField={{latestSyncField}}&streamid={{streamid}}"

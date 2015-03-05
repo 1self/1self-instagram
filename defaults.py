@@ -3,17 +3,17 @@ def get_file_contents(fname):
     fhandle = open(fname, 'r')
     content = fhandle.read()
     fhandle.close()
-    return content
+    return content.strip()
 
 HOST = "http://localhost:8080"
-client_id = get_file_contents("instagram_client_id.txt")
-client_secret = get_file_contents("instagram_client_secret.txt")
-redirect_uri = "http://localhost:8080/authRedirect"
-realtime_callback = "http://localhost:8080/push"
+INSTAGRAM_CLIENT_ID = get_file_contents("instagram_client_id.txt")
+INSTAGRAM_CLIENT_SECRET = get_file_contents("instagram_client_secret.txt")
+INSTAGRAM_REDIRECT_HANDLER = "http://localhost:8080/authRedirect"
 raw_scope = ""
-SYNC_ENDPOINT = "/sync"
+OFFLINE_SYNC_ENDPOINT = "/sync"
 APP_NAME = "1self instagram"
-
+APP_SESSION_SECRET = get_file_contents("session_secret.txt")
+APP_COOKIE_NAME = get_file_contents("app_cookie_name.txt")
 
 #oneself defaults
 ONESELF_API_ENDPOINT             = "http://api-staging.1self.co"

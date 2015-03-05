@@ -10,14 +10,13 @@ from google.appengine.api import background_thread
 from oneself import *
 from webapp2_extras import sessions
 
-
 scope = raw_scope.split(' ')
 if not scope or scope == [""]:
     scope = ["basic"]
 
-api = InstagramAPI(client_id=client_id, client_secret=client_secret, redirect_uri=redirect_uri)
-sessions.default_config['secret_key'] = 'lol'
-sessions.default_config['cookie_name'] = '1self-session'
+api = InstagramAPI(client_id=INSTAGRAM_CLIENT_ID, client_secret=INSTAGRAM_CLIENT_SECRET, redirect_uri=INSTAGRAM_REDIRECT_HANDLER)
+sessions.default_config['secret_key'] = APP_SESSION_SECRET
+sessions.default_config['cookie_name'] = 'oneself_cookie'
 
 class MainPage(webapp2.RequestHandler):
 

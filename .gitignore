@@ -3,4 +3,6 @@ instagram_client_id.txt
 instagram_client_secret.txt
 oneself_client_id.txt
 oneself_client_secret.txt
+session_secret.txt
+app_cookie_name.txt
 *.pyc
