@@ -1,3 +1,4 @@
+import logging
 from defaults import *
 import webapp2
 import vendor
@@ -39,7 +40,8 @@ class MainPage(webapp2.RequestHandler):
         self.session_store.save_sessions(self.response)
 
         auth_uri = api.get_authorize_login_url(scope = scope)
-        print(auth_uri)
+        logging.info("Redirecting to: %s" % auth_uri)
+
         self.redirect(auth_uri)
 
 class AuthRedirect(webapp2.RequestHandler):
@@ -53,14 +55,14 @@ class AuthRedirect(webapp2.RequestHandler):
         user_metadata = api.exchange_code_for_access_token(code)
         access_token, user_info = user_metadata
 
-        print(access_token)
-        print(user_info)
+        logging.info("Access token successfully found: %s" % access_token)
+        logging.info("User info fetched successfully: %s" % user_info)
 
         self.session_store = sessions.get_store(request=self.request)
         oneself_userName = self.session.get("oneself_userName")
         oneself_regToken = self.session.get("oneself_regToken")
 
-        stream, status = register_stream(oneself_userName, oneself_regToken, user.uid)
+        stream = register_stream(oneself_userName, oneself_regToken, user_info["id"])
 
         user = User()
         user.access_token = access_token
@@ -74,8 +76,8 @@ class AuthRedirect(webapp2.RequestHandler):
         
         key = user.put()
         
-        print("Key id: " + key)
-        print("Instagram UserId: " + user.uid)
+        logging.info("User stored successfully. Key id: %s" % key)
+        logging.info("Instagram UserId: %s" % user.uid)
 
         self.redirect(ONESELF_API_ENDPOINT + ONESELF_AFTER_SETUP_REDIRECT)
 
@@ -87,11 +89,11 @@ class GetUser(webapp2.RequestHandler):
 
     def get(self):
         self.session_store = sessions.get_store(request=self.request)
-        print(self.session.get("oneself_userName"))
+        logging.info(self.session.get("oneself_userName"))
 
         userid = self.request.get('userid')
         user = getUserByInstagramId(userid)
-        print(user)
+        logging.info(user)
 
 
 class HandlePushFromInstagram(webapp2.RequestHandler):
@@ -102,10 +104,11 @@ class HandlePushFromInstagram(webapp2.RequestHandler):
     def post(self):
         jsonstring = self.request.body
         jsonobject = json.loads(jsonstring)
-        t = background_thread.BackgroundThread(formatAndSend, [jsonobject])
-        t.start()
-        print(jsonobject)
-
+        logging.info("Request received from instagram: %s" % jsonobject)
+        formatAndSend(jsonobject)
+        # t = background_thread.BackgroundThread(target=formatAndSend, args=(jsonobject))
+        # t.start()
+        self.response.write("success")
 
 class Nothing(webapp2.RequestHandler):
     def get(self):
@@ -124,8 +127,10 @@ def formatAndSend(data):
     #logic may have to change as we support more
 
     for d in data:
-        userid = data["object_id"]
+        userid = d["object_id"]
+        logging.info("Finding user with id: %s" % userid)
         user = getUserByInstagramId(userid)
+        logging.info("User found with: %s" % userid)
         sendTo1self(user)
 
 

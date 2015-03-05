@@ -14,6 +14,4 @@ class User(ndb.Model):
 def getUserByInstagramId(key):
     key_to_int = int(key)
     qry = User.query(User.uid == key)
-    #user_key = ndb.Key('User', key_to_int)
-    #return user_key.get()
     return qry.get()
