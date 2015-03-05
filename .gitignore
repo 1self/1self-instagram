@@ -1,2 +1,6 @@
 lib
+instagram_client_id.txt
+instagram_client_secret.txt
+oneself_client_id.txt
+oneself_client_secret.txt
 *.pyc

@@ -106,8 +106,7 @@ class HandlePushFromInstagram(webapp2.RequestHandler):
         jsonobject = json.loads(jsonstring)
         logging.info("Request received from instagram: %s" % jsonobject)
         formatAndSend(jsonobject)
-        # t = background_thread.BackgroundThread(target=formatAndSend, args=(jsonobject))
-        # t.start()
+        #t = background_thread.start_new_background_thread(formatAndSend, [jsonobject])
         self.response.write("success")
 
 class Nothing(webapp2.RequestHandler):
