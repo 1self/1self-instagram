@@ -6,6 +6,8 @@ redirect_uri = "http://localhost:8080/authRedirect"
 realtime_callback = "http://localhost:8080/push"
 raw_scope = ""
 SYNC_ENDPOINT = "/sync"
+APP_NAME = "1self instagram"
+
 
 
 #oneself defaults
@@ -13,7 +15,8 @@ ONESELF_API_ENDPOINT             = "http://api-staging.1self.co"
 ONESELF_SEND_BATCH_EVENTS_PATH   = "/v1/streams/%s/events/batch"
 ONESELF_REGISTER_STREAM_ENDPOINT = "/v1/users/%s/streams"
 ONESELF_VISUALIZATION_ENDPOINT   = "/v1/streams/%s/events/steps/walked/sum(numberOfSteps)/daily/barchart"
-ONESELF_AFTER_SETUP_ENDPOINT     = "/integrations"
+ONESELF_AFTER_SETUP_REDIRECT     = "/integrations"
 ONESELF_APP_ID = ""
 ONESELF_APP_SECRET = ""
-
+STANDARD_ACTION_TAGS = []
+STANDARD_OBJECT_TAGS = []

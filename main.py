@@ -15,26 +15,8 @@ if not scope or scope == [""]:
     scope = ["basic"]
 
 api = InstagramAPI(client_id=client_id, client_secret=client_secret, redirect_uri=redirect_uri)
-sessions.default_config = {
-    'secret_key':      'lol',
-    'cookie_name':     '1self-session',
-    'session_max_age': None,
-    'cookie_args': {
-        'max_age':     None,
-        'domain':      None,
-        'path':        '/',
-        'secure':      None,
-        'httponly':    False,
-    },
-    'backends': {
-        'securecookie': 'webapp2_extras.sessions.SecureCookieSessionFactory',
-        'datastore':    'webapp2_extras.appengine.sessions_ndb.' \
-                        'DatastoreSessionFactory',
-        'memcache':     'webapp2_extras.appengine.sessions_memcache.' \
-                        'MemcacheSessionFactory',
-    },
-}
-
+sessions.default_config['secret_key'] = 'lol'
+sessions.default_config['cookie_name'] = '1self-session'
 
 class MainPage(webapp2.RequestHandler):
 
@@ -86,12 +68,16 @@ class AuthRedirect(webapp2.RequestHandler):
         user.uid = user_info["id"]
         user.username = user_info["username"]
         user.profile_picture = user_info["profile_picture"]
-
+        user.oneself_stream_id = stream["streamid"]
+        user.oneself_readToken = stream["readToken"]
+        user.oneself_writeToken = stream["writeToken"]
+        
         key = user.put()
         
-        print("Key(so called)")
-        print(key)
+        print("Key id: " + key)
+        print("Instagram UserId: " + user.uid)
 
+        self.redirect(ONESELF_API_ENDPOINT + ONESELF_AFTER_SETUP_REDIRECT)
 
 class GetUser(webapp2.RequestHandler):
 
@@ -116,7 +102,7 @@ class HandlePushFromInstagram(webapp2.RequestHandler):
     def post(self):
         jsonstring = self.request.body
         jsonobject = json.loads(jsonstring)
-        t = background_thread.BackgroundThread(sendTo1self, [jsonobject])
+        t = background_thread.BackgroundThread(formatAndSend, [jsonobject])
         t.start()
         print(jsonobject)
 
@@ -126,11 +112,29 @@ class Nothing(webapp2.RequestHandler):
         self.response.write("Sorry, there is nothing here")
 
 
+class HandleOfflineSyncRequest(webapp2.RequestHandler):
+    def get(self):
+        self.response.write("Nothing to sync")
+
+
+def formatAndSend(data):
+    #currently instagram supports only media post notification
+    #theoritically data will only come for 1 user, still iterating
+    #we have to send each media upload as an event to 1self
+    #logic may have to change as we support more
+
+    for d in data:
+        userid = data["object_id"]
+        user = getUserByInstagramId(userid)
+        sendTo1self(user)
+
+
 application = webapp2.WSGIApplication([
     ('/', Nothing),
     ('/login', MainPage),
     ('/authRedirect', AuthRedirect),
     ('/user', GetUser),
-    ('/push', HandlePushFromInstagram)
+    ('/push', HandlePushFromInstagram),
+    ('/sync', HandleOfflineSyncRequest)
 ], debug=True)
 
