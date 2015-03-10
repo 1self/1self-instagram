@@ -33,13 +33,13 @@ def sendTo1self(user):
 
 
 def get_photo_event():
-    return [{
+    return {
         "source": APP_NAME,
         "actionTags": STANDARD_ACTION_TAGS,
         "objectTags": STANDARD_OBJECT_TAGS,
         "dateTime": datetime.now().isoformat(),
         "properties": {"Photo-posted": 1},
-        }]
+        }
         
 
 def register_stream(oneself_username, registration_token, instagramUserId):

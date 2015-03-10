@@ -8,7 +8,7 @@ def get_file_contents(fname):
 HOST = "http://localhost:8080"
 INSTAGRAM_CLIENT_ID = get_file_contents("instagram_client_id.txt")
 INSTAGRAM_CLIENT_SECRET = get_file_contents("instagram_client_secret.txt")
-INSTAGRAM_REDIRECT_HANDLER = "http://localhost:8080/authRedirect"
+INSTAGRAM_REDIRECT_HANDLER = "http://instagram-1self-integration.appspot.com/authRedirect"
 raw_scope = ""
 OFFLINE_SYNC_ENDPOINT = "/sync"
 APP_NAME = "1self instagram"
