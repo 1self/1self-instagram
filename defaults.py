@@ -8,7 +8,7 @@ def get_file_contents(fname):
 HOST = "http://localhost:8080"
 INSTAGRAM_CLIENT_ID = get_file_contents("instagram_client_id.txt")
 INSTAGRAM_CLIENT_SECRET = get_file_contents("instagram_client_secret.txt")
-INSTAGRAM_REDIRECT_HANDLER = "http://instagram-1self-integration.appspot.com/authRedirect"
+INSTAGRAM_REDIRECT_URL = HOST + "/authRedirect"
 raw_scope = ""
 OFFLINE_SYNC_ENDPOINT = "/sync"
 APP_NAME = "1self instagram"
@@ -23,7 +23,7 @@ ONESELF_VISUALIZATION_ENDPOINT   = "/v1/streams/%s/events/steps/walked/sum(numbe
 ONESELF_AFTER_SETUP_REDIRECT     = "/integrations"
 ONESELF_APP_ID = get_file_contents("oneself_client_id.txt")
 ONESELF_APP_SECRET = get_file_contents("oneself_client_secret.txt")
-STANDARD_ACTION_TAGS = ["upload"]
-STANDARD_OBJECT_TAGS = ["instagram", "media"]
+STANDARD_ACTION_TAGS = []
+STANDARD_OBJECT_TAGS = ["Internet", "Social Network", "Instagram"]
 
     

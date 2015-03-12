@@ -4,15 +4,11 @@ from google.appengine.api import urlfetch
 from datetime import datetime
 import logging
 
-def sendTo1self(user):
-    events = []
-    events.append(get_photo_event())
-
+def sendTo1self(user, events):
     logging.info("Sending photo event to 1self")
     url = ONESELF_API_ENDPOINT + (ONESELF_SEND_BATCH_EVENTS_PATH % user.oneself_stream_id)
 
     headers = {"Authorization": user.oneself_writeToken, "Content-Type": "application/json"}
-
 
     body = json.dumps(events)
 
@@ -32,15 +28,47 @@ def sendTo1self(user):
         return r.content, r.status_code
 
 
-def get_photo_event():
+def media_upload_event():
     return {
         "source": APP_NAME,
-        "actionTags": STANDARD_ACTION_TAGS,
-        "objectTags": STANDARD_OBJECT_TAGS,
+        "actionTags": STANDARD_ACTION_TAGS + ["upload"],
+        "objectTags": STANDARD_OBJECT_TAGS + ["media"],
         "dateTime": datetime.now().isoformat(),
-        "properties": {"Photo-posted": 1},
+        "properties": {
+            "Media-Upload": 1
+            }
         }
         
+def sync_event(action_type):
+    return {
+        "actionTags": [action_type],
+        "objectTags": ["sync"],
+        "dateTime": datetime.now().isoformat(),
+        "properties": {
+            "source": APP_NAME
+            }
+        }
+
+def following_event(count):
+    return {
+        "actionTags": STANDARD_ACTION_TAGS + ["following", "count"],
+        "objectTags": STANDARD_OBJECT_TAGS + ["me"],
+        "dateTime": datetime.now().isoformat(),
+        "properties": {
+            "count": count
+            }
+        }
+
+def followers_event(count):
+    return {
+        "actionTags": STANDARD_ACTION_TAGS + ["followers", "count"],
+        "objectTags": STANDARD_OBJECT_TAGS + ["me"],
+        "dateTime": datetime.now().isoformat(),
+        "properties": {
+            "count": count
+            }
+        }
+
 
 def register_stream(oneself_username, registration_token, instagramUserId):
     logging.info("registering stream for " + oneself_username)
@@ -51,7 +79,10 @@ def register_stream(oneself_username, registration_token, instagramUserId):
     callback_url = getCallbackUrl(instagramUserId)
     logging.info("callback URL " + callback_url)
     body = json.dumps({"callbackUrl": callback_url})
-    headers = {"Authorization": auth_string, "registration-token": registration_token, "Content-Type": "application/json"}
+    headers = {"Authorization": auth_string, 
+               "registration-token": registration_token, 
+               "Content-Type": "application/json"
+               }
 
     r = urlfetch.fetch(url=url,
                        payload=body,

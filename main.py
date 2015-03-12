@@ -14,7 +14,8 @@ scope = raw_scope.split(' ')
 if not scope or scope == [""]:
     scope = ["basic"]
 
-api = InstagramAPI(client_id=INSTAGRAM_CLIENT_ID, client_secret=INSTAGRAM_CLIENT_SECRET, redirect_uri=INSTAGRAM_REDIRECT_HANDLER)
+api = InstagramAPI(client_id=INSTAGRAM_CLIENT_ID, client_secret=INSTAGRAM_CLIENT_SECRET, redirect_uri=INSTAGRAM_REDIRECT_URL)
+
 sessions.default_config['secret_key'] = APP_SESSION_SECRET
 sessions.default_config['cookie_name'] = 'oneself_cookie'
 
@@ -74,26 +75,12 @@ class AuthRedirect(webapp2.RequestHandler):
         user.oneself_writeToken = stream["writeToken"]
         
         key = user.put()
-        
+
         logging.info("User stored successfully. Key id: %s" % key)
         logging.info("Instagram UserId: %s" % user.uid)
 
+        syncOffline(user.uid)
         self.redirect(ONESELF_API_ENDPOINT + ONESELF_AFTER_SETUP_REDIRECT)
-
-class GetUser(webapp2.RequestHandler):
-
-    @webapp2.cached_property
-    def session(self):
-        return self.session_store.get_session()
-
-    def get(self):
-        self.session_store = sessions.get_store(request=self.request)
-        logging.info(self.session.get("oneself_userName"))
-
-        userid = self.request.get('userid')
-        user = getUserByInstagramId(userid)
-        logging.info(user)
-
 
 class HandlePushFromInstagram(webapp2.RequestHandler):
     def get(self):
@@ -105,7 +92,6 @@ class HandlePushFromInstagram(webapp2.RequestHandler):
         jsonobject = json.loads(jsonstring)
         logging.info("Request received from instagram: %s" % jsonobject)
         formatAndSend(jsonobject)
-        #t = background_thread.start_new_background_thread(formatAndSend, [jsonobject])
         self.response.write("success")
 
 class Nothing(webapp2.RequestHandler):
@@ -115,7 +101,9 @@ class Nothing(webapp2.RequestHandler):
 
 class HandleOfflineSyncRequest(webapp2.RequestHandler):
     def get(self):
-        self.response.write("Nothing to sync")
+        userid = self.request.get('username')
+        syncOffline(userid)
+        self.response.write("Sync finished successfully")
 
 
 def formatAndSend(data):
@@ -129,14 +117,41 @@ def formatAndSend(data):
         logging.info("Finding user with id: %s" % userid)
         user = getUserByInstagramId(userid)
         logging.info("User found with: %s" % userid)
-        sendTo1self(user)
+        sendMediaUpload(user)
+
+
+def sendMediaUpload(user):
+    events = []
+    events.append(media_upload_event())
+    sendTo1self(user, events)
+
+def syncOffline(userid):
+    logging.info("Sync started for: %s" % userid)
+    user = getUserByInstagramId(userid)
+    logging.info("User found: %s" % user)
+
+    events = []
+    events.append(sync_event("start"))
+    sendTo1self(user, events)
+
+    instagram_client = InstagramAPI(access_token=user.access_token)
+    user_details = instagram_client.user(user.uid)
+    logging.info("User details: %s" % user_details.counts)
+
+    events = []
+    events.append(following_event(user_details.counts["follows"]))
+    events.append(followers_event(user_details.counts["followed_by"]))
+    events.append(sync_event("complete"))
+    sendTo1self(user, events)
+
+    logging.info("Sync successfully finished for user: %s" % userid)
+
 
 
 application = webapp2.WSGIApplication([
     ('/', Nothing),
     ('/login', MainPage),
     ('/authRedirect', AuthRedirect),
-    ('/user', GetUser),
     ('/push', HandlePushFromInstagram),
     ('/sync', HandleOfflineSyncRequest)
 ], debug=True)
