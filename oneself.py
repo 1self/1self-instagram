@@ -1,6 +1,7 @@
 from defaults import *
 import json
 from google.appengine.api import urlfetch
+urlfetch.set_default_fetch_deadline(100)
 from datetime import datetime
 import logging
 
