@@ -5,7 +5,6 @@ from datetime import datetime
 import logging
 
 def sendTo1self(user, events):
-    logging.info("Sending photo event to 1self")
     url = ONESELF_API_ENDPOINT + (ONESELF_SEND_BATCH_EVENTS_PATH % user.oneself_stream_id)
 
     headers = {"Authorization": user.oneself_writeToken, "Content-Type": "application/json"}
