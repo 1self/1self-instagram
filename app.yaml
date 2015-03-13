@@ -1,5 +1,5 @@
 application: instagram-1self-integration
-version: 1e
+version: 1f
 runtime: python27
 api_version: 1
 threadsafe: true
