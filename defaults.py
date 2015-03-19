@@ -23,4 +23,4 @@ ONESELF_AFTER_SETUP_REDIRECT     = "/integrations"
 ONESELF_APP_ID = get_file_contents("oneself_client_id.txt")
 ONESELF_APP_SECRET = get_file_contents("oneself_client_secret.txt")
 STANDARD_ACTION_TAGS = []
-STANDARD_OBJECT_TAGS = ["Internet", "Social Network", "Instagram"]
+STANDARD_OBJECT_TAGS = ["internet", "social-network", "instagram"]

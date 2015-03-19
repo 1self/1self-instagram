@@ -31,7 +31,7 @@ def sendTo1self(user, events):
 def media_upload_event():
     return {
         "source": APP_NAME,
-        "actionTags": STANDARD_ACTION_TAGS + ["upload"],
+        "actionTags": STANDARD_ACTION_TAGS + ["share", "publish"],
         "objectTags": STANDARD_OBJECT_TAGS + ["media"],
         "dateTime": datetime.now().isoformat(),
         "properties": {
@@ -51,8 +51,8 @@ def sync_event(action_type):
 
 def following_event(count):
     return {
-        "actionTags": STANDARD_ACTION_TAGS + ["following", "count"],
-        "objectTags": STANDARD_OBJECT_TAGS + ["me"],
+        "actionTags": STANDARD_ACTION_TAGS + ["sample"],
+        "objectTags": STANDARD_OBJECT_TAGS + ["social-graph", "outbound", "following"],
         "dateTime": datetime.now().isoformat(),
         "properties": {
             "count": count
@@ -61,8 +61,8 @@ def following_event(count):
 
 def followers_event(count):
     return {
-        "actionTags": STANDARD_ACTION_TAGS + ["followers", "count"],
-        "objectTags": STANDARD_OBJECT_TAGS + ["me"],
+        "actionTags": STANDARD_ACTION_TAGS + ["sample"],
+        "objectTags": STANDARD_OBJECT_TAGS + ["social-graph", "inbound", "follower"],
         "dateTime": datetime.now().isoformat(),
         "properties": {
             "count": count
