@@ -5,7 +5,7 @@ def get_file_contents(fname):
     fhandle.close()
     return content.strip()
 
-HOST = "http://instagram-1self-integration.appspot.com"
+HOST = "https://instagram.1self.co"
 INSTAGRAM_CLIENT_ID = get_file_contents("instagram_client_id.txt")
 INSTAGRAM_CLIENT_SECRET = get_file_contents("instagram_client_secret.txt")
 INSTAGRAM_REDIRECT_URL = HOST + "/authRedirect"
