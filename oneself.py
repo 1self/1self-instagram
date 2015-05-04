@@ -42,7 +42,7 @@ def media_upload_event():
 def sync_event(action_type):
     return {
         "actionTags": [action_type],
-        "objectTags": ["sync"],
+        "objectTags": ["1self", "integration", "sync"],
         "dateTime": datetime.now().isoformat(),
         "properties": {
             "source": APP_NAME
