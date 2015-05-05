@@ -30,7 +30,7 @@ def sendTo1self(user, events):
 
 def media_upload_event():
     return {
-        "source": APP_NAME,
+        "source": APP_SOURCE,
         "actionTags": STANDARD_ACTION_TAGS + ["share", "publish"],
         "objectTags": STANDARD_OBJECT_TAGS + ["media"],
         "dateTime": datetime.now().isoformat(),
@@ -44,13 +44,14 @@ def sync_event(action_type):
         "actionTags": [action_type],
         "objectTags": ["1self", "integration", "sync"],
         "dateTime": datetime.now().isoformat(),
+        "source": APP_SOURCE,
         "properties": {
-            "source": APP_NAME
             }
         }
 
 def following_event(count):
     return {
+        "source": APP_SOURCE,
         "actionTags": STANDARD_ACTION_TAGS + ["sample"],
         "objectTags": STANDARD_OBJECT_TAGS + ["social-graph", "outbound", "following"],
         "dateTime": datetime.now().isoformat(),
@@ -61,6 +62,7 @@ def following_event(count):
 
 def followers_event(count):
     return {
+        "source": APP_SOURCE,
         "actionTags": STANDARD_ACTION_TAGS + ["sample"],
         "objectTags": STANDARD_OBJECT_TAGS + ["social-graph", "inbound", "follower"],
         "dateTime": datetime.now().isoformat(),

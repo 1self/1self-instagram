@@ -12,6 +12,7 @@ INSTAGRAM_REDIRECT_URL = HOST + "/authRedirect"
 raw_scope = ""
 OFFLINE_SYNC_ENDPOINT = "/sync"
 APP_NAME = "1self instagram"
+APP_SOURCE = "1self-instagram"
 APP_SESSION_SECRET = get_file_contents("session_secret.txt")
 
 #oneself defaults
