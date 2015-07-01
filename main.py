@@ -64,6 +64,8 @@ class AuthRedirect(webapp2.RequestHandler):
 
         stream = register_stream(oneself_userName, oneself_regToken, user_info["id"])
 
+
+
         user = User()
         user.access_token = access_token
         user.full_name = user_info["full_name"]
@@ -74,6 +76,8 @@ class AuthRedirect(webapp2.RequestHandler):
         user.oneself_readToken = stream["readToken"]
         user.oneself_writeToken = stream["writeToken"]
         
+        logging.info("%s" % user)
+
         key = user.put()
 
         logging.info("User stored successfully. Key id: %s" % key)
@@ -134,7 +138,7 @@ def syncOffline(userid):
     events.append(sync_event("start"))
     sendTo1self(user, events)
 
-    instagram_client = InstagramAPI(access_token=user.access_token)
+    instagram_client = InstagramAPI(access_token=user.access_token, client_secret=INSTAGRAM_CLIENT_SECRET)
     user_details = instagram_client.user(user.uid)
     logging.info("User details: %s" % user_details.counts)
 

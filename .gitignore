@@ -8,3 +8,4 @@ app_cookie_name.txt
 instagram_client_id_local.txt
 instagram_client_secret_local.txt
 *.pyc
+.env
