@@ -25,6 +25,8 @@ APP_SOURCE = "1self-instagram"
 APP_SESSION_SECRET = os.getenv("APP_SESSION_SECRET", "dev-secret")
 
 #oneself defaults
+ONESELF_APP_ENDPOINT             = os.getenv("ONESELF_APP_ENDPOINT")
+logging.info("ONESELF_APP_ENDPOINT: " + ONESELF_APP_ENDPOINT)
 ONESELF_API_ENDPOINT             = os.getenv("INSTAGRAM_ONESELF_API_ENDPOINT", "http://api.1self.dev")
 ONESELF_SEND_BATCH_EVENTS_PATH   = "/v1/streams/%s/events/batch"
 ONESELF_REGISTER_STREAM_ENDPOINT = "/v1/users/%s/streams"

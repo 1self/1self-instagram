@@ -1,9 +1,0 @@
-application: instagram-1self-integration
-version: 1h
-runtime: python27
-api_version: 1
-threadsafe: true
-
-handlers:
-- url: /.*
-  script: main.application

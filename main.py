@@ -84,7 +84,7 @@ class AuthRedirect(webapp2.RequestHandler):
         logging.info("Instagram UserId: %s" % user.uid)
 
         syncOffline(user.uid)
-        self.redirect(ONESELF_API_ENDPOINT + ONESELF_AFTER_SETUP_REDIRECT)
+        self.redirect("" + ONESELF_APP_ENDPOINT + ONESELF_AFTER_SETUP_REDIRECT)
 
 class HandlePushFromInstagram(webapp2.RequestHandler):
     def get(self):
