@@ -24,7 +24,7 @@ def sendTo1self(user, events):
         response = json.loads(r.content)
         return response, r.status_code
     except ValueError:
-        logging.info("Error sending event to 1self: %s" % r.content)
+        logging.info("Error sending event to 1self: %s %s" % (r.content, r.status_code))
         return r.content, r.status_code
 
 
@@ -56,7 +56,7 @@ def following_event(count):
         "objectTags": STANDARD_OBJECT_TAGS + ["social-graph", "outbound", "following"],
         "dateTime": datetime.now().isoformat(),
         "properties": {
-            "count": count
+            "latest-count": count
             }
         }
 
@@ -67,7 +67,7 @@ def followers_event(count):
         "objectTags": STANDARD_OBJECT_TAGS + ["social-graph", "inbound", "follower"],
         "dateTime": datetime.now().isoformat(),
         "properties": {
-            "count": count
+            "latest-count": count
             }
         }
 
