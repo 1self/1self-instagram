@@ -6,9 +6,10 @@ vendor.add("lib")
 from instagram.client import InstagramAPI
 from users import *
 import json
-from google.appengine.api import background_thread
 from oneself import *
 from webapp2_extras import sessions
+from google.appengine.ext import deferred
+
 
 scope = raw_scope.split(' ')
 if not scope or scope == [""]:
@@ -83,7 +84,7 @@ class AuthRedirect(webapp2.RequestHandler):
         logging.info("User stored successfully. Key id: %s" % key)
         logging.info("Instagram UserId: %s" % user.uid)
 
-        syncOffline(user.uid)
+        deferred.defer(syncOffline, user.uid)
         self.redirect("" + ONESELF_APP_ENDPOINT + ONESELF_AFTER_SETUP_REDIRECT)
 
 class HandlePushFromInstagram(webapp2.RequestHandler):
@@ -129,6 +130,22 @@ def sendMediaUpload(user):
     events.append(media_upload_event())
     sendTo1self(user, events)
 
+def dump(prelude, obj):
+  for attr in dir(obj):
+    print "%s: obj.%s = %s" % (prelude ,attr, getattr(obj, attr))
+
+def upload_event(media):
+    return {
+        "source": APP_SOURCE,
+        "actionTags": STANDARD_ACTION_TAGS + ["share", "publish"],
+        "objectTags": STANDARD_OBJECT_TAGS + ["media", "photo"],
+        "dateTime": media.created_time.isoformat(),
+        "properties": {
+            "likes": media.like_count,
+            "comments": media.comment_count,
+            }
+        }
+
 def syncOffline(userid):
     logging.info("Sync started for: %s" % userid)
     user = getUserByInstagramId(userid)
@@ -141,16 +158,35 @@ def syncOffline(userid):
     instagram_client = InstagramAPI(access_token=user.access_token, client_secret=INSTAGRAM_CLIENT_SECRET)
     user_details = instagram_client.user(user.uid)
     logging.info("User details: %s" % user_details.counts)
+    recent_media, next_ = api.user_recent_media(user_id=user.uid, count=10)
 
     events = []
+    for media in recent_media:
+       events.append(upload_event(media))
+
+    events.append(sync_event("complete"))
+    sendTo1self(user, events)
+
+    events = []
+
+    while next_:
+        events.append(sync_event("start"))
+        sendTo1self(user, events)
+        more_media, next_ = api.user_recent_media(user_id=user.uid, count=10, with_next_url=next_)
+        for media in more_media:
+            events.append(upload_event(media))
+        events.append(sync_event("complete"))
+        sendTo1self(user, events)
+        events = []
+
+    events.append(sync_event("start"))
+    sendTo1self(user, events)
     events.append(following_event(user_details.counts["follows"]))
     events.append(followers_event(user_details.counts["followed_by"]))
     events.append(sync_event("complete"))
     sendTo1self(user, events)
 
     logging.info("Sync successfully finished for user: %s" % userid)
-
-
 
 application = webapp2.WSGIApplication([
     ('/', Nothing),
