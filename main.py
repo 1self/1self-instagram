@@ -74,6 +74,7 @@ class AuthRedirect(webapp2.RequestHandler):
         user.username = user_info["username"]
         user.profile_picture = user_info["profile_picture"]
         user.oneself_stream_id = stream["streamid"]
+        user.stream_id = stream["streamid"]
         user.oneself_readToken = stream["readToken"]
         user.oneself_writeToken = stream["writeToken"]
         
@@ -84,7 +85,14 @@ class AuthRedirect(webapp2.RequestHandler):
         logging.info("User stored successfully. Key id: %s" % key)
         logging.info("Instagram UserId: %s" % user.uid)
 
-        deferred.defer(syncOffline, user.uid)
+        lastSyncDate = datetime(1, 1, 1)
+        logging.info("Date time is: %s" % lastSyncDate)
+
+        events = []
+        events.append(sync_event("start"))
+        sendTo1self(user, events)
+
+        deferred.defer(syncOffline, user, lastSyncDate)
         self.redirect("" + ONESELF_APP_ENDPOINT + ONESELF_AFTER_SETUP_REDIRECT)
 
 class HandlePushFromInstagram(webapp2.RequestHandler):
@@ -93,10 +101,12 @@ class HandlePushFromInstagram(webapp2.RequestHandler):
         self.response.write(challenge)
 
     def post(self):
+        # eas: disabled the pushes, we poll instead
         jsonstring = self.request.body
         jsonobject = json.loads(jsonstring)
+        # logging.info("Request received from instagram: %s" % jsonobject)
+        # formatAndSend(jsonobject)
         logging.info("Request received from instagram: %s" % jsonobject)
-        formatAndSend(jsonobject)
         self.response.write("success")
 
 class Nothing(webapp2.RequestHandler):
@@ -106,9 +116,24 @@ class Nothing(webapp2.RequestHandler):
 
 class HandleOfflineSyncRequest(webapp2.RequestHandler):
     def get(self):
-        userid = self.request.get('username')
-        syncOffline(userid)
+        stream_id = self.request.get('streamid')
+        logging.info("Sync started for: %s" % stream_id)
+        user = get_user_by_stream_id(stream_id)
+
+        logging.info("user")
+        logging.info(user)
+
+        events = []
+        events.append(sync_event("start"))
+        sendTo1self(user, events)
+
+        syncOffline(user)
         self.response.write("Sync finished successfully")
+
+class UpgradeSchema(webapp2.RequestHandler):
+    def get(self):
+        update_user_stream_id(logging)
+
 
 
 def formatAndSend(data):
@@ -140,20 +165,19 @@ def upload_event(media):
         "actionTags": STANDARD_ACTION_TAGS + ["share", "publish"],
         "objectTags": STANDARD_OBJECT_TAGS + ["media", "photo"],
         "dateTime": media.created_time.isoformat(),
+        "latestSyncField": media.created_time.isoformat(),
         "properties": {
             "likes": media.like_count,
             "comments": media.comment_count,
             }
         }
 
-def syncOffline(userid):
-    logging.info("Sync started for: %s" % userid)
-    user = getUserByInstagramId(userid)
-    logging.info("User found: %s" % user)
+def syncOffline(user, latestSyncDate):
+    logging.info("{0}: User found, user id".format(user.username, user.uid))
+    logging.info("{0}: syncing to {1}".format(user.username, latestSyncDate))
 
     events = []
-    events.append(sync_event("start"))
-    sendTo1self(user, events)
+    logging.info("")
 
     instagram_client = InstagramAPI(access_token=user.access_token, client_secret=INSTAGRAM_CLIENT_SECRET)
     user_details = instagram_client.user(user.uid)
@@ -164,35 +188,25 @@ def syncOffline(userid):
     for media in recent_media:
        events.append(upload_event(media))
 
-    events.append(sync_event("complete"))
-    sendTo1self(user, events)
-
-    events = []
-
     while next_:
-        events.append(sync_event("start"))
-        sendTo1self(user, events)
         more_media, next_ = api.user_recent_media(user_id=user.uid, count=10, with_next_url=next_)
         for media in more_media:
-            events.append(upload_event(media))
-        events.append(sync_event("complete"))
-        sendTo1self(user, events)
-        events = []
+            if(media.created_time > latestSyncDate):
+                events.append(upload_event(media))
 
-    events.append(sync_event("start"))
-    sendTo1self(user, events)
     events.append(following_event(user_details.counts["follows"]))
     events.append(followers_event(user_details.counts["followed_by"]))
     events.append(sync_event("complete"))
     sendTo1self(user, events)
 
-    logging.info("Sync successfully finished for user: %s" % userid)
+    logging.info("Sync successfully finished for user: %s" % user.uid)
 
 application = webapp2.WSGIApplication([
     ('/', Nothing),
     ('/login', MainPage),
     ('/authRedirect', AuthRedirect),
     ('/push', HandlePushFromInstagram),
-    ('/sync', HandleOfflineSyncRequest)
+    ('/sync', HandleOfflineSyncRequest),
+    ('/upgradeSchema', UpgradeSchema)
 ], debug=True)
 
