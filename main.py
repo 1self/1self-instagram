@@ -73,7 +73,6 @@ class AuthRedirect(webapp2.RequestHandler):
         user.uid = user_info["id"]
         user.username = user_info["username"]
         user.profile_picture = user_info["profile_picture"]
-        user.oneself_stream_id = stream["streamid"]
         user.stream_id = stream["streamid"]
         user.oneself_readToken = stream["readToken"]
         user.oneself_writeToken = stream["writeToken"]
