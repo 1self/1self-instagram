@@ -21,7 +21,7 @@ def sendTo1self(user, events):
     
     try:
         logging.info("Response after sending event to 1self %s" % r.content)
-        response = json.loads(r.content)
+        response = json.loads(r.content) if not r.content else json.loads("{}")
         return response, r.status_code
     except ValueError:
         logging.info("Error sending event to 1self: %s %s" % (r.content, r.status_code))

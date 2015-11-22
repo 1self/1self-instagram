@@ -1,6 +1,6 @@
 from google.appengine.ext import ndb
 
-class User(ndb.Expando):
+class User(ndb.Model):
     access_token = ndb.StringProperty(indexed=False)
     full_name = ndb.StringProperty(indexed=False)
     uid = ndb.StringProperty(indexed=True)
@@ -21,10 +21,6 @@ def get_user_by_stream_id(streamId):
     return qry.get()
 
 def update_user_stream_id(logging):
-    qry = User.query()
-    for user in qry:
-        delattr(user, 'oneself_stream_id')
-        user.put()
-        logging.info("updated {0} for streamid {1}".format(user.username, user.stream_id))
+    logging.info("no schema upgrade to perform")
 
         
