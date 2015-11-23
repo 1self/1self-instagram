@@ -166,7 +166,7 @@ def upload_event(media):
         "dateTime": media.created_time.isoformat(),
         "latestSyncField": media.created_time.isoformat(),
         "properties": {
-            "likes": media.like_count,
+            "latest-likes": media.like_count,
             "comments": media.comment_count,
             }
         }
@@ -181,14 +181,14 @@ def syncOffline(user, latestSyncDate):
     instagram_client = InstagramAPI(access_token=user.access_token, client_secret=INSTAGRAM_CLIENT_SECRET)
     user_details = instagram_client.user(user.uid)
     logging.info("User details: %s" % user_details.counts)
-    recent_media, next_ = api.user_recent_media(user_id=user.uid, count=10)
+    recent_media, next_ = api.user_recent_media(user_id=user.uid, access_token=user.access_token, count=10)
 
     events = []
     for media in recent_media:
        events.append(upload_event(media))
 
     while next_:
-        more_media, next_ = api.user_recent_media(user_id=user.uid, count=10, with_next_url=next_)
+        more_media, next_ = api.user_recent_media(user_id=user.uid, access_token=user.access_token, count=10, with_next_url=next_)
         for media in more_media:
             if(media.created_time > latestSyncDate):
                 events.append(upload_event(media))
