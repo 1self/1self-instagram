@@ -117,7 +117,7 @@ class HandleOfflineSyncRequest(webapp2.RequestHandler):
     def get(self):
         stream_id = self.request.get('streamid')
         stringLastSync = self.request.get('latestSyncField')
-        if stringLastSync == "undefined":
+        if stringLastSync == "undefined" or stringLastSync is None:
             stringLastSync == "2000-01-01T00:00:00"
         latestSyncField = datetime.strptime(stringLastSync, "%Y-%m-%dT%H:%M:%S")
         logging.info("{0}: sync started, last sync: {1}".format(stream_id, latestSyncField.isoformat()))
