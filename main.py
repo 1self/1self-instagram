@@ -167,8 +167,8 @@ def upload_event(media):
         "dateTime": media.created_time.isoformat(),
         "latestSyncField": media.created_time.isoformat(),
         "properties": {
-            "latest-likes": media.like_count,
-            "latest-comments": media.comment_count,
+            "likes": media.like_count,
+            "comments": media.comment_count,
             }
         }
 
