@@ -116,17 +116,18 @@ class Nothing(webapp2.RequestHandler):
 class HandleOfflineSyncRequest(webapp2.RequestHandler):
     def get(self):
         stream_id = self.request.get('streamid')
-        logging.info("Sync started for: %s" % stream_id)
+        stringLastSync = self.request.get('latestSyncField')
+        latestSyncField = datetime.strptime(stringLastSync, "%Y-%m-%dT%H:%M:%S")
+        logging.info("{0}: sync started, last sync: {1}".format(stream_id, latestSyncField.isoformat()))
         user = get_user_by_stream_id(stream_id)
 
-        logging.info("user")
-        logging.info(user)
+        logging.info("user: {0}".format(user))
 
         events = []
         events.append(sync_event("start"))
         sendTo1self(user, events)
 
-        syncOffline(user)
+        syncOffline(user, latestSyncField)
         self.response.write("Sync finished successfully")
 
 class UpgradeSchema(webapp2.RequestHandler):
@@ -167,7 +168,7 @@ def upload_event(media):
         "latestSyncField": media.created_time.isoformat(),
         "properties": {
             "latest-likes": media.like_count,
-            "comments": media.comment_count,
+            "latest-comments": media.comment_count,
             }
         }
 
@@ -185,11 +186,14 @@ def syncOffline(user, latestSyncDate):
 
     events = []
     for media in recent_media:
-       events.append(upload_event(media))
+        #logging.info("date comparison {0} vs {1} is {2}".format(media.created_time, latestSyncDate, media.created_time > latestSyncDate))
+        if(media.created_time > latestSyncDate):
+            events.append(upload_event(media))
 
     while next_:
         more_media, next_ = api.user_recent_media(user_id=user.uid, access_token=user.access_token, count=10, with_next_url=next_)
         for media in more_media:
+            #logging.info("date comparison {0} vs {1} is {2}".format(media.created_time, latestSyncDate, media.created_time > latestSyncDate))
             if(media.created_time > latestSyncDate):
                 events.append(upload_event(media))
 
