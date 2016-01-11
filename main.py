@@ -121,7 +121,7 @@ class HandleOfflineSyncRequest(webapp2.RequestHandler):
         logging.info(stringLastSync == 'null')
         if stringLastSync == "undefined" or stringLastSync is None or stringLastSync == 'null':
             logging.info("last sync is null")
-            stringLastSync == "2000-01-01T00:00:00"
+            stringLastSync = "2000-01-01T00:00:00"
         #eas: sometimes the format of latest sync field comes with milliseconds and timezone information. Haven't 
         #figured out why this in the platform yet, but here we want to guard against it by substringing
         logging.info(stringLastSync)
