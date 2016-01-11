@@ -14,6 +14,8 @@ def sendTo1self(user, events):
 
     logging.info("Ready to send event url: %s headers: %s body: %s" % (url, headers, body))
 
+    urlfetch.set_default_fetch_deadline(60)
+    
     r = urlfetch.fetch(url=url,
                        payload=body,
                        method=urlfetch.POST,
