@@ -4,6 +4,7 @@ import webapp2
 import vendor
 vendor.add("lib")
 from instagram.client import InstagramAPI
+from instagram.bind import InstagramAPIError
 from users import *
 import json
 from oneself import *
@@ -143,7 +144,6 @@ class HandleOfflineSyncRequest(webapp2.RequestHandler):
         sendTo1self(user, events)
 
         syncOffline(user, latestSyncField)
-        self.response.write("Sync finished successfully")
 
 class UpgradeSchema(webapp2.RequestHandler):
     def get(self):
@@ -195,7 +195,25 @@ def syncOffline(user, latestSyncDate):
     logging.info("")
 
     instagram_client = InstagramAPI(access_token=user.access_token, client_secret=INSTAGRAM_CLIENT_SECRET)
-    user_details = instagram_client.user(user.uid)
+
+    try: 
+        user_details = instagram_client.user(user.uid)
+    except InstagramAPIError as apiError:
+        logging.info("invalid token error")
+        logging.info(apiError);
+        logging.info(apiError.status_code)
+        logging.info(apiError.error_type)
+        logging.info(apiError.error_message)
+        errorEvents = []
+        code = 500
+        message = apiError.error_message
+        if apiError.error_type == 'OAuthAccessTokenException':
+            code = 401
+
+        errorEvents.append(sync_error_event("error", 401, message))
+        sendTo1self(user, errorEvents)
+        return
+
     logging.info("User details: %s" % user_details.counts)
     recent_media, next_ = api.user_recent_media(user_id=user.uid, access_token=user.access_token, count=10)
 
