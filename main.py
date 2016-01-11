@@ -119,7 +119,17 @@ class HandleOfflineSyncRequest(webapp2.RequestHandler):
         stringLastSync = self.request.get('latestSyncField')
         if stringLastSync == "undefined" or stringLastSync is None or stringLastSync == "null":
             stringLastSync == "2000-01-01T00:00:00"
-        latestSyncField = datetime.strptime(stringLastSync, "%Y-%m-%dT%H:%M:%S")
+        #eas: sometimes the format of latest sync field comes with milliseconds and timezone information. Haven't 
+        #figured out why this in the platform yet, but here we want to guard against it by substringing
+        logging.info(stringLastSync)
+        if len(stringLastSync) == 28:
+            logging.info("Long format of last sync date detected")
+            latestSyncField = datetime.strptime(stringLastSync[:23], "%Y-%m-%dT%H:%M:%S.%f")
+        else:
+            logging.info("short format of last sync date detected")
+            latestSyncField = datetime.strptime(stringLastSync[:23], "%Y-%m-%dT%H:%M:%S")
+
+        
         logging.info("{0}: sync started, last sync: {1}".format(stream_id, latestSyncField.isoformat()))
         user = get_user_by_stream_id(stream_id)
 
