@@ -1,4 +1,5 @@
 lib
+src
 instagram_client_id.txt
 instagram_client_secret.txt
 oneself_client_id.txt
@@ -11,3 +12,4 @@ instagram_client_secret_local.txt
 .env
 app.yaml
 pip*.json
+*.swp

@@ -66,7 +66,7 @@ def sync_error_event(action_type, code, message):
 def following_event(count):
     return {
         "source": APP_SOURCE,
-        "actionTags": STANDARD_ACTION_TAGS + ["sample"],
+        "actionTags": STANDARD_ACTION_TAGS + ["following", "sample"],
         "objectTags": STANDARD_OBJECT_TAGS + ["social-graph", "outbound", "following"],
         "dateTime": datetime.now().isoformat(),
         "properties": {
@@ -77,7 +77,7 @@ def following_event(count):
 def followers_event(count):
     return {
         "source": APP_SOURCE,
-        "actionTags": STANDARD_ACTION_TAGS + ["sample"],
+        "actionTags": STANDARD_ACTION_TAGS + ["follower", "sample"],
         "objectTags": STANDARD_OBJECT_TAGS + ["social-graph", "inbound", "follower"],
         "dateTime": datetime.now().isoformat(),
         "properties": {
