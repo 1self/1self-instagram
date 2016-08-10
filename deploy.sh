@@ -1,0 +1,1 @@
+../../1self-shared-config/integrations.instagram.deploy.sh.prod
